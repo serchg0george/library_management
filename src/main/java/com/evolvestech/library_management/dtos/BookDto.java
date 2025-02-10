@@ -22,7 +22,7 @@ public class BookDto extends BaseDto {
 
     @NotBlank
     @Length(max = 10)
-    @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2}$")
+    @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2}$", message = "Input date should be in format YYYY-MM-DD")
     private String publicationDate;
 
     @NotBlank
@@ -30,5 +30,6 @@ public class BookDto extends BaseDto {
 
     @NotBlank
     @Length(max = 13)
+    @Pattern(regexp = "^\\d{10}(\\d{3})?$", message = "Input must be either 10 or 13 digits")
     private String isbn;
 }
