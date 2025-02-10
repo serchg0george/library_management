@@ -39,20 +39,20 @@ public class BookController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<BookDto> updateBook(@PathVariable Long id, @Valid @RequestBody BookDto book) {
+    public ResponseEntity<String> updateBook(@PathVariable Long id, @Valid @RequestBody BookDto book) {
         if (service.getBookById(id) == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Book with provided id " + id + " not found!", HttpStatus.NOT_FOUND);
         }
         service.updateBook(book, id);
-        return new ResponseEntity<>(book, HttpStatus.OK);
+        return new ResponseEntity<>("Book successfully updated!", HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<BookDto> deleteBook(@PathVariable Long id) {
+    public ResponseEntity<String> deleteBook(@PathVariable Long id) {
         if (service.getBookById(id) == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Book with provided id " + id + " not found!", HttpStatus.NOT_FOUND);
         }
         service.deleteBook(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>("Book successfully deleted!", HttpStatus.OK);
     }
 }
