@@ -16,6 +16,9 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,10 +30,12 @@ public class BookServiceImpl implements BookService {
     private final BookMapperImpl mapper;
     private final EntityManager entityManager;
     private static final String AUTHOR = "author";
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @Override
     @Transactional
     public BookDto createBook(BookDto book) {
+        validatePublicationDate(book.publicationDate());
         Book bookEntity = mapper.mapDtoToEntity(book);
         return mapper.mapEntityToDto(repository.save(bookEntity));
     }
@@ -48,6 +53,7 @@ public class BookServiceImpl implements BookService {
     @Override
     @Transactional
     public BookDto updateBook(BookDto book, Long id) {
+        validatePublicationDate(book.publicationDate());
         Book bookEntity = repository.findById(id).orElseThrow(() -> new RuntimeException("Book not found"));
         Book updatedBook = mapper.mapDtoToEntity(book);
         updatedBook.setId(bookEntity.getId());
@@ -84,5 +90,20 @@ public class BookServiceImpl implements BookService {
         TypedQuery<Book> query = entityManager.createQuery(criteriaQuery);
 
         return query.getResultList().stream().map(mapper::mapEntityToDto).toList();
+    }
+
+    public static void validatePublicationDate(String publicationDate) {
+        if (publicationDate == null || publicationDate.isBlank()) {
+            throw new IllegalArgumentException("Publication date cannot be null or blank");
+        }
+
+        try {
+            LocalDate date = LocalDate.parse(publicationDate, DATE_FORMATTER);
+            if (date.isAfter(LocalDate.now())) {
+                throw new IllegalArgumentException("Invalid date: Date cannot be in the future");
+            }
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Input date should be in format YYYY-MM-DD");
+        }
     }
 }
