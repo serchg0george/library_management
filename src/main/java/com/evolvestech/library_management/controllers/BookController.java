@@ -1,6 +1,7 @@
 package com.evolvestech.library_management.controllers;
 
 import com.evolvestech.library_management.dtos.BookDto;
+import com.evolvestech.library_management.searches.BookSearchRequest;
 import com.evolvestech.library_management.services.BookService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -18,6 +19,12 @@ import java.util.List;
 public class BookController {
 
     private final BookService service;
+
+    @PostMapping("/search")
+    public ResponseEntity<List<BookDto>> searchAnimal(@RequestBody BookSearchRequest request) {
+        List<BookDto> bookDtos = service.findBookByRequest(request);
+        return ResponseEntity.ok(bookDtos);
+    }
 
     @PostMapping
     public ResponseEntity<BookDto> addBook(@Valid @RequestBody BookDto book) {
