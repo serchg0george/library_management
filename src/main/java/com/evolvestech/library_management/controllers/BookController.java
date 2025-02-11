@@ -28,6 +28,7 @@ public class BookController {
 
     @PostMapping
     public ResponseEntity<BookDto> addBook(@Valid @RequestBody BookDto book) {
+        service.validatePublicationDate(book.publicationDate());
         service.createBook(book);
         return new ResponseEntity<>(book, HttpStatus.CREATED);
     }
@@ -39,26 +40,18 @@ public class BookController {
 
     @GetMapping("{id}")
     public ResponseEntity<BookDto> getBookById(@PathVariable Long id) {
-        if (service.getBookById(id) == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
         return new ResponseEntity<>(service.getBookById(id), HttpStatus.OK);
     }
 
     @PutMapping("{id}")
     public ResponseEntity<String> updateBook(@PathVariable Long id, @Valid @RequestBody BookDto book) {
-        if (service.getBookById(id) == null) {
-            return new ResponseEntity<>("Book with provided id " + id + " not found!", HttpStatus.NOT_FOUND);
-        }
+        service.validatePublicationDate(book.publicationDate());
         service.updateBook(book, id);
         return new ResponseEntity<>("Book successfully updated!", HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")
     public ResponseEntity<String> deleteBook(@PathVariable Long id) {
-        if (service.getBookById(id) == null) {
-            return new ResponseEntity<>("Book with provided id " + id + " not found!", HttpStatus.NOT_FOUND);
-        }
         service.deleteBook(id);
         return new ResponseEntity<>("Book successfully deleted!", HttpStatus.OK);
     }

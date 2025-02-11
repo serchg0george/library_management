@@ -2,6 +2,7 @@ package com.evolvestech.library_management.services.impl;
 
 import com.evolvestech.library_management.dtos.BookDto;
 import com.evolvestech.library_management.entities.Book;
+import com.evolvestech.library_management.exceptions.BookNotFoundException;
 import com.evolvestech.library_management.mappers.BookMapperImpl;
 import com.evolvestech.library_management.repositories.BookRepository;
 import com.evolvestech.library_management.searches.BookSearchRequest;
@@ -35,14 +36,13 @@ public class BookServiceImpl implements BookService {
     @Override
     @Transactional
     public BookDto createBook(BookDto book) {
-        validatePublicationDate(book.publicationDate());
         Book bookEntity = mapper.mapDtoToEntity(book);
         return mapper.mapEntityToDto(repository.save(bookEntity));
     }
 
     @Override
-    public BookDto getBookById(Long bookId) {
-        return repository.findById(bookId).map(mapper::mapEntityToDto).orElse(null);
+    public BookDto getBookById(Long id) {
+        return repository.findById(id).map(mapper::mapEntityToDto).orElse(null);
     }
 
     @Override
@@ -53,16 +53,18 @@ public class BookServiceImpl implements BookService {
     @Override
     @Transactional
     public BookDto updateBook(BookDto book, Long id) {
-        validatePublicationDate(book.publicationDate());
-        Book bookEntity = repository.findById(id).orElseThrow(() -> new RuntimeException("Book not found"));
+        Book bookEntity = repository.findById(id).orElseThrow(() -> new BookNotFoundException(id));
         Book updatedBook = mapper.mapDtoToEntity(book);
         updatedBook.setId(bookEntity.getId());
         return mapper.mapEntityToDto(repository.save(updatedBook));
     }
 
     @Override
-    public void deleteBook(Long bookId) {
-        repository.deleteById(bookId);
+    public void deleteBook(Long id) {
+        if (!repository.existsById(id)) {
+            throw new BookNotFoundException(id);
+        }
+        repository.deleteById(id);
     }
 
     @Override
@@ -80,7 +82,7 @@ public class BookServiceImpl implements BookService {
             Predicate genrePredicate = criteriaBuilder.like(root.get("genre"), query);
             Predicate isbnPredicate = criteriaBuilder.like(root.get("isbn"), query);
 
-            predicates.add(criteriaBuilder.or(titlePredicate, authorPredicate, publicationDatePredicate, genrePredicate, isbnPredicate  ));
+            predicates.add(criteriaBuilder.or(titlePredicate, authorPredicate, publicationDatePredicate, genrePredicate, isbnPredicate));
         }
 
         criteriaQuery.where(criteriaBuilder.or(predicates.toArray(new Predicate[0])));
@@ -92,7 +94,8 @@ public class BookServiceImpl implements BookService {
         return query.getResultList().stream().map(mapper::mapEntityToDto).toList();
     }
 
-    public static void validatePublicationDate(String publicationDate) {
+    @Override
+    public void validatePublicationDate(String publicationDate) {
         if (publicationDate == null || publicationDate.isBlank()) {
             throw new IllegalArgumentException("Publication date cannot be null or blank");
         }
