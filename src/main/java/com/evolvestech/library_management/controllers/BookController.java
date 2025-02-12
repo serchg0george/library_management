@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,6 +28,7 @@ public class BookController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<BookDto> addBook(@Valid @RequestBody BookDto book) {
         service.validatePublicationDate(book.publicationDate());
         service.createBook(book);
@@ -34,16 +36,19 @@ public class BookController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<List<BookDto>> getAllBooks() {
         return new ResponseEntity<>(service.getAllBooks(), HttpStatus.OK);
     }
 
     @GetMapping("{id}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<BookDto> getBookById(@PathVariable Long id) {
         return new ResponseEntity<>(service.getBookById(id), HttpStatus.OK);
     }
 
     @PutMapping("{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> updateBook(@PathVariable Long id, @Valid @RequestBody BookDto book) {
         service.validatePublicationDate(book.publicationDate());
         service.updateBook(book, id);
@@ -51,6 +56,7 @@ public class BookController {
     }
 
     @DeleteMapping("{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteBook(@PathVariable Long id) {
         service.deleteBook(id);
         return new ResponseEntity<>("Book successfully deleted!", HttpStatus.OK);
