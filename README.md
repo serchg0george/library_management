@@ -196,3 +196,16 @@ This is a Library Management System built using Spring Boot. It allows you to ma
 | `genre`          | VARCHAR  |                                 |
 | `isbn`           | VARCHAR  | NOT NULL, UNIQUE, LENGTH=13    |
 
+
+### `t_users` Table
+
+| Column Name  | Data Type | Constraints                      |
+|-------------|----------|---------------------------------|
+| `id`        | BIGINT   | PRIMARY KEY, AUTO_INCREMENT    |
+| `first_name`| VARCHAR  | NOT NULL                        |
+| `last_name` | VARCHAR  |                                 |
+| `email`     | VARCHAR  | NOT NULL, UNIQUE               |
+| `password`  | VARCHAR  | NOT NULL                        |
+| `role`      | ENUM     | NOT NULL                        |
+
+
