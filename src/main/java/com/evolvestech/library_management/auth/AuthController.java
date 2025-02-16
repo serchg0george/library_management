@@ -2,6 +2,7 @@ package com.evolvestech.library_management.auth;
 
 import com.evolvestech.library_management.dtos.auth.AuthenticationRequestDto;
 import com.evolvestech.library_management.dtos.auth.RegisterRequestDto;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -20,14 +21,14 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(
-            @RequestBody RegisterRequestDto request
+            @Valid @RequestBody RegisterRequestDto request
     ) {
         return ResponseEntity.ok(service.register(request));
     }
 
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(
-            @RequestBody AuthenticationRequestDto request
+            @Valid @RequestBody AuthenticationRequestDto request
     ) {
         return ResponseEntity.ok(service.authenticate(request));
     }
